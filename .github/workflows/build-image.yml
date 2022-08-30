@@ -7,12 +7,14 @@ on:
       AWS_REGION:
         required: true
         type: string
+      IMAGE_TAG:
+        required: true
+        type: string
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
-
 
 jobs:
   build-and-upload-image:
@@ -40,7 +42,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REGISTRY }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
         run: |
           # Build a docker container and
           # push it to ECR so that it can
