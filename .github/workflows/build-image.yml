@@ -7,6 +7,12 @@ on:
       AWS_REGION:
         required: true
         type: string
+    secrets:
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+
 
 jobs:
   build-and-upload-image:
