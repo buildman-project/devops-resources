@@ -7,26 +7,24 @@ on:
       IMAGE:
         required: true
         type: string
+      ECS_CLUSTER:
+        required: true
+        type: string
+      ECS_SERVICE:
+        required: true
+        type: string
       TASK_DEFINITION:
         required: true
         type: string
       CONTAINER_NAME:
         required: true
         type: string
-      ECS_SERVICE:
-        required: true
-        type: string
-      ECS_CLUSTER:
-        required: true
-        type: string
-    
 
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
-
 
 jobs:
   deploy:
