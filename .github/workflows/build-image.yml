@@ -15,6 +15,9 @@ on:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
+    outputs:
+      image:
+        value: ${{ jobs.build-and-upload-image.outputs.image }}
 
 jobs:
   build-and-upload-image:
