@@ -60,6 +60,9 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           env-variables: ${{ inputs.ENV_VARIABLES }}
 
+      - run: |
+          echo ${{ steps.replace-task-env.outputs.final-task-def }}
+
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
