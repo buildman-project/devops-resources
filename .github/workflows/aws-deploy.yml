@@ -54,9 +54,6 @@ jobs:
           container-name: ${{ inputs.CONTAINER_NAME }}
           image: ${{ inputs.IMAGE}}
 
-      - run: |
-          echo ${{ steps.task-def.outputs.task-definition }}
-
       - id: replace-task-env
         uses: buildman-project/gh-action-modify-aws-task@main
         with:
@@ -66,7 +63,7 @@ jobs:
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.replace-task-env.outputs.final-task-def}}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ inputs.ECS_SERVICE }}
           cluster: ${{ inputs.ECS_CLUSTER }}
           wait-for-service-stability: true
