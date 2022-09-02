@@ -57,7 +57,7 @@ jobs:
       - id: replace-task-env
         uses: buildman-project/gh-action-modify-aws-task@main
         with:
-          task-definition-content: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           env-variables: ${{ inputs.ENV_VARIABLES }}
 
       - name: Deploy Amazon ECS task definition
