@@ -19,6 +19,9 @@ on:
       CONTAINER_NAME:
         required: true
         type: string
+      TASK_DEFINITION_ENV:
+        required: true
+        type: string
 
     secrets:
       AWS_SECRET_ACCESS_KEY:
@@ -51,10 +54,17 @@ jobs:
           container-name: ${{ inputs.CONTAINER_NAME }}
           image: ${{ inputs.IMAGE}}
 
+      - id: replace-task-env
+        uses: buildman-project/gh-action-modify-aws-task@main
+        with:
+          task-definition-content: ${{ steps.task-def.outputs.task-definition }}
+          env-variables: |
+            NEXT_PUBLIC_AUTH_BASE_URL=http://auth.betterforreal.com
+
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.replace-task-env.outputs.final-str }}
           service: ${{ inputs.ECS_SERVICE }}
           cluster: ${{ inputs.ECS_CLUSTER }}
           wait-for-service-stability: true
