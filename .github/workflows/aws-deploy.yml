@@ -19,7 +19,7 @@ on:
       CONTAINER_NAME:
         required: true
         type: string
-      TASK_DEFINITION_ENV:
+      ENV_VARIABLES:
         required: true
         type: string
 
@@ -58,13 +58,12 @@ jobs:
         uses: buildman-project/gh-action-modify-aws-task@main
         with:
           task-definition-content: ${{ steps.task-def.outputs.task-definition }}
-          env-variables: |
-            NEXT_PUBLIC_AUTH_BASE_URL=http://auth.betterforreal.com
+          env-variables: ${{ inputs.ENV_VARIABLES }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.replace-task-env.outputs.final-str }}
+          task-definition: ${{ steps.replace-task-env.outputs.final-task-def}}
           service: ${{ inputs.ECS_SERVICE }}
           cluster: ${{ inputs.ECS_CLUSTER }}
           wait-for-service-stability: true
