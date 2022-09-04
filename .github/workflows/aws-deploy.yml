@@ -19,15 +19,14 @@ on:
       CONTAINER_NAME:
         required: true
         type: string
-      ENV_VARIABLES:
-        required: false
-        type: string
-
+      
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
+      ENV_VARIABLES:
+        required: false
 
 jobs:
   deploy:
