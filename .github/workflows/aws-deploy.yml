@@ -57,7 +57,7 @@ jobs:
         uses: buildman-project/gh-action-modify-aws-task@main
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          env-variables: ${{ inputs.ENV_VARIABLES }}
+          env-variables: ${{ secrets.ENV_VARIABLES }}
 
       - run: |
           echo ${{ steps.replace-task-env.outputs.final-task-def }}
