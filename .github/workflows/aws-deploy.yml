@@ -19,7 +19,7 @@ on:
       CONTAINER_NAME:
         required: true
         type: string
-      
+
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: true
@@ -31,7 +31,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: deploy storybook
     steps:
       - run: echo ${{inputs.IMAGE}}
 
