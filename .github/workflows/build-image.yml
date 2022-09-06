@@ -28,12 +28,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - run: echo -e "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}\n@buildman-project:registry=https://npm.pkg.github.com" >> .npmrc
-      - uses: ferluisxd/create-npmrc@3
-        with:
-          org_name: buildman-project
-        env:
-          AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+      - run: echo -e "//npm.pkg.github.com/:_authToken=${{ secrets.PACKAGES_TOKEN }}\n@buildman-project:registry=https://npm.pkg.github.com" >> .npmrc
+
+      # - uses: ferluisxd/create-npmrc@3
+      #   with:
+      #     org_name: buildman-project
+      #   env:
+      #     AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
