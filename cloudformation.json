@@ -1,0 +1,165 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "AWS CloudFormation Sample Template WordPress_Multi_AZ: WordPress is web software you can use to create a beautiful website or blog. This template installs a highly-available, scalable WordPress deployment using a multi-az Amazon RDS database instance for storage. It demonstrates using the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "VpcId of your existing Virtual Private Cloud (VPC)",
+      "ConstraintDescription": "must be the VPC Id of an existing Virtual Private Cloud."
+    },
+
+    "Subnets": {
+      "Type": "List<AWS::EC2::Subnet::Id>",
+      "Description": "The list of SubnetIds in your Virtual Private Cloud (VPC)",
+      "ConstraintDescription": "must be a list of at least two existing subnets associated with at least two different availability zones. They should be residing in the selected Virtual Private Cloud."
+    },
+
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    }
+  },
+
+  "Resources": {
+    "ApplicationLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Subnets": { "Ref": "Subnets" }
+      }
+    },
+    "storybookLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Subnets": { "Ref": "Subnets" }
+      }
+    },
+    "authLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Subnets": { "Ref": "Subnets" }
+      }
+    },
+
+    "ALBListener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "Type": "forward",
+            "TargetGroupArn": { "Ref": "ALBTargetGroup" }
+          }
+        ],
+        "LoadBalancerArn": { "Ref": "ApplicationLoadBalancer" },
+        "Port": "80",
+        "Protocol": "HTTP"
+      }
+    },
+
+    "ALBTargetGroup": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "VpcId": { "Ref": "VpcId" },
+        "TargetGroupAttributes": [
+          { "Key": "stickiness.enabled", "Value": "true" },
+          { "Key": "stickiness.type", "Value": "lb_cookie" },
+          { "Key": "stickiness.lb_cookie.duration_seconds", "Value": "30" }
+        ]
+      }
+    },
+
+    "WebServerSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable HTTP access via port 80 locked down to the load balancer + SSH access",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "SourceSecurityGroupId": {
+              "Fn::Select": [
+                0,
+                { "Fn::GetAtt": ["ApplicationLoadBalancer", "SecurityGroups"] }
+              ]
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "SSHLocation" }
+          }
+        ],
+        "VpcId": { "Ref": "VpcId" }
+      }
+    },
+
+    "WebServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "VPCZoneIdentifier": { "Ref": "Subnets" },
+        "LaunchConfigurationName": { "Ref": "LaunchConfig" },
+        "MinSize": "1",
+        "MaxSize": "5",
+        "DesiredCapacity": { "Ref": "WebServerCapacity" },
+        "TargetGroupARNs": [{ "Ref": "ALBTargetGroup" }]
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT15M"
+        }
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT15M",
+          "WaitOnResourceSignals": "true"
+        }
+      }
+    },
+
+    "LaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            { "Ref": "AWS::Region" },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                { "Ref": "InstanceType" },
+                "Arch"
+              ]
+            }
+          ]
+        },
+        "InstanceType": { "Ref": "InstanceType" },
+        "SecurityGroups": [{ "Ref": "WebServerSecurityGroup" }],
+        "KeyName": { "Ref": "KeyName" }
+      }
+    }
+  },
+
+  "Outputs": {
+    "WebsiteURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            { "Fn::GetAtt": ["ApplicationLoadBalancer", "DNSName"] },
+            "/wordpress"
+          ]
+        ]
+      },
+      "Description": "buildman webapp"
+    }
+  }
+}

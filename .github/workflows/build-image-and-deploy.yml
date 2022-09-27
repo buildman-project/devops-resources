@@ -1,0 +1,54 @@
+on:
+  workflow_call:
+    inputs:
+      task-definition:
+        required: true
+        type: string
+      container-name:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      service:
+        required: true
+        type: string
+      cluster:
+        required: true
+        type: string
+
+jobs:
+  build-image-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Retrieve trask def
+        uses: fabiano-amaral/ecs-task-def-replacements@main
+        id: task
+        with:
+          cluster-name: my-ecs-cluster
+          service-name: my-service-name
+          replacements: |
+            {
+              "containerDefinitions": [{
+                "image": "my-new-image"
+              }]
+            }
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ inputs.task-definition }}
+          container-name: ${{ inputs.container-name }}
+          image: ${{ inputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ inputs.service }}
+          cluster: ${{ inputs.cluster }}
+          wait-for-service-stability: true
