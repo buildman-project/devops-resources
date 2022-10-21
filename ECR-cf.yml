@@ -10,6 +10,6 @@ Resources:
   ECRRepo:
     Type: AWS::ECR::Repository
     Properties: 
-      RepositoryName: !Sub ${RepoName}-repo
+      RepositoryName: !Sub ${RepoName}
       ImageScanningConfiguration: 
         ScanOnPush: true
