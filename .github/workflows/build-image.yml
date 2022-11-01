@@ -10,7 +10,7 @@ on:
       IMAGE_TAG:
         required: true
         type: string
-      DockerfileName:
+      DOCKERFILE_NAME:
         required: false 
         default: Dockerfile
         type: string
@@ -60,7 +60,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
-          DOCKERFILE: ${{ inputs.DockerfileName }}
+          DOCKERFILE: ${{ inputs.DOCKERFILE_NAME }}
         run: |
           # Build a docker container and
           # push it to ECR so that it can
