@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: test
+
+Parameters:
+  ProjectName:
+    Type: String
+
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.0.0.0/16
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref ProjectName, VPC]]
+
+  # -------------------------------- Networking -------------------------------- #
+
+  # Internet gateway is needed for vpc
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        - Key: "Network"
+          Value: "Public"
+        - Key: "Name"
+          Value: !Join ["-", [!Ref ProjectName, "IGW"]]
+
+  GatewayToInternet:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref ProjectName, subnet]]
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1b
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref ProjectName, subnet]]
+
+  # Despite their names, subnets are only "public" or "private" based on
+  # the definitions of their associated routing tables.
+  # Documentation and example here: https://www.infoq.com/articles/aws-vpc-cloudformation/
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public
+
+  PublicRoute1: # Public route table has direct routing to IGW:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # Attach the public subnets to public route tables,
+  # and attach the private subnets to private route tables:
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  # ------------------------------- load balancer ------------------------------ #
+  LoadBalancer:
+    DependsOn: GatewayToInternet
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Join ["-", [!Ref ProjectName, LB]]
+      # Scheme: internal
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !GetAtt LBSecurityGroup.GroupId
+        - !GetAtt VPC.DefaultSecurityGroup
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DefaultTargetGroup
+
+  LBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join ["-", [!Ref ProjectName, load-balancer-SG]]
+      GroupName: !Join ["-", [!Ref ProjectName, load-balancer-SG]]
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  # We define a default target group here, as this is a mandatory Parameters
+  # when creating an Application Load Balancer Listener. This is not used, instead
+  # a target group is created per-service in each service template (../services/*)
+  DefaultTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Join ["-", [!Ref ProjectName, TG]]
+      VpcId: !Ref VPC
+      Port: 80
+      Protocol: HTTP
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ["sts:AssumeRole"]
+      Path: /
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  # Allow the ECS Tasks to download images from ECR
+                  - "ecr:GetAuthorizationToken"
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:GetDownloadUrlForLayer"
+                  - "ecr:BatchGetImage"
+
+                  # Allow the ECS tasks to upload logs to CloudWatch
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+Outputs:
+  VPC:
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "${AWS::StackName}:VPC"
+
+  PublicSubnets:
+    Value: !Join [",", [!Ref PublicSubnet1, !Ref PublicSubnet2]]
+    Export:
+      Name: !Sub "${AWS::StackName}:PublicSubnets"
+
+  LoadBalancer:
+    Description: A reference to the Application Load Balancer
+    Value: !Ref LoadBalancer
+    Export:
+      Name: !Sub "${AWS::StackName}:LoadBalancer"
+
+  SecurityGroup:
+    Value: !GetAtt LBSecurityGroup.GroupId
+    Export:
+      Name: !Sub "${AWS::StackName}:SecurityGroup"
+
+  LoadBalancerUrl:
+    Description: The URL of the ALB
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: !Sub "${AWS::StackName}:LoadBalancerUrl"
+
+  ECSTaskExecutionRole:
+    Description: The ARN of the ECS role
+    Value: !GetAtt "ECSTaskExecutionRole.Arn"
+    Export:
+      Name: !Sub "${AWS::StackName}:ECSTaskExecutionRole"
+
+  Listener:
+    Description: A reference to a port 80 listener
+    Value: !Ref LoadBalancerListener
+    Export:
+      Name: !Sub "${AWS::StackName}:Listener"
