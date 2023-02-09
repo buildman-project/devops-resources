@@ -17,6 +17,9 @@ on:
 
 jobs:
   test_workflow:
+    permissions:
+      id-token: write
+      contents: read
     name: shell command
     runs-on: ubuntu-latest
     steps:
