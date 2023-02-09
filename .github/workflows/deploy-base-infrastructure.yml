@@ -1,7 +1,7 @@
 name: deploy base infrastructure
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       AWS_REGION:
         required: false
