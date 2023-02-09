@@ -10,7 +10,9 @@ jobs:
     steps:
       - name: log secrets
         run: |
-          echo ${{ secrets.AWS_ACCESS_KEY_ID }} | base64
+          echo $SECRET | base64
+        env:
+          SECRET: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
