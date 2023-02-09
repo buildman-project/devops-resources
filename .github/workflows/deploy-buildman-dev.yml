@@ -1,0 +1,8 @@
+name: deploy buildman-dev
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test_workflow:
+    uses: .github/workflows/reusable-workflow.yml@main
