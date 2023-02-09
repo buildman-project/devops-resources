@@ -2,6 +2,11 @@ name: deploy buildman dev
 
 on:
   workflow_dispatch:
+    secrets:
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
 
 jobs:
   test_workflow:
