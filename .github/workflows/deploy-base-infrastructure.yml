@@ -9,11 +9,11 @@ on:
         description: aws region
         default: us-east-1
 
-    secrets:
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      AWS_ACCESS_KEY_ID:
-        required: true
+    # secrets:
+    #   AWS_SECRET_ACCESS_KEY:
+    #     required: true
+    #   AWS_ACCESS_KEY_ID:
+    #     required: true
 
 jobs:
   test_workflow:
