@@ -16,7 +16,7 @@ on:
     #     required: true
 
 jobs:
-  test_workflow:
+  infrastructure:
     name: shell command
     runs-on: ubuntu-latest
     steps:
