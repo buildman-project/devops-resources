@@ -5,5 +5,8 @@ on:
 
 jobs:
   test_workflow:
+    permissions:
+      id-token: write # need this for OIDC
+      contents: read
     uses: ./.github/workflows/deploy-base-infrastructure.yml
     secrets: inherit
