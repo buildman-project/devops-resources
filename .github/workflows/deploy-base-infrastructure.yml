@@ -7,7 +7,7 @@ on:
         required: false
         type: string
         description: aws region
-        default: us-east-1
+        default: "us-east-1"
 
     # secrets:
     #   AWS_SECRET_ACCESS_KEY:
