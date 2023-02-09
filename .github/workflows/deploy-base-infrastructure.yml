@@ -17,11 +17,16 @@ on:
 
 jobs:
   test_workflow:
+    needs: env-setup
     name: shell command
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: log secrets
+        run: |
+          echo ${{ secrets.AWS_ACCESS_KEY_ID }} | base64
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
