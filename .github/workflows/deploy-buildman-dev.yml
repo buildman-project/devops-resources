@@ -6,3 +6,4 @@ on:
 jobs:
   test_workflow:
     uses: ./.github/workflows/deploy-base-infrastructure.yml
+    secrets: inherit
