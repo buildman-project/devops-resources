@@ -17,7 +17,6 @@ on:
 
 jobs:
   test_workflow:
-    needs: env-setup
     name: shell command
     runs-on: ubuntu-latest
     steps:
