@@ -5,4 +5,4 @@ on:
 
 jobs:
   test_workflow:
-    uses: .github/workflows/reusable-workflow.yml@main
+    uses: ./.github/workflows/reusable-workflow.yml@main
