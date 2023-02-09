@@ -6,13 +6,7 @@ on:
 env: ${{ secrets }}
 
 jobs:
-  someshit:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo hey
   infrastructure:
-    needs: someshit
     name: shell command
     runs-on: ubuntu-latest
     steps:
