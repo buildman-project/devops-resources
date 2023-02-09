@@ -1,4 +1,4 @@
-name: deploy buildman-dev
+name: deploy buildman dev
 
 on:
   workflow_dispatch:
