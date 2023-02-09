@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       AWS_REGION:
-        required: true
+        required: false
         type: string
         description: aws region
         default: us-east-1
