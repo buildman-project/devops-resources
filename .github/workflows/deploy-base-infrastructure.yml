@@ -15,11 +15,12 @@ on:
       AWS_ACCESS_KEY_ID:
         required: true
 
-jobs:
-  test_workflow:
     permissions:
       id-token: write
       contents: read
+
+jobs:
+  test_workflow:
     name: shell command
     runs-on: ubuntu-latest
     steps:
