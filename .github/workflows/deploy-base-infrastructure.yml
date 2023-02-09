@@ -3,6 +3,8 @@ name: deploy base infrastructure
 on:
   workflow_dispatch:
 
+env: ${{ secrets }}
+
 jobs:
   someshit:
     runs-on: ubuntu-latest
