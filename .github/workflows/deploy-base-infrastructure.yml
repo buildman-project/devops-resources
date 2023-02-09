@@ -20,9 +20,6 @@ jobs:
     name: shell command
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: log secrets
         run: |
           echo ${{ secrets.AWS_ACCESS_KEY_ID }} | base64
@@ -39,6 +36,9 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: create-server-resources
         run: |
