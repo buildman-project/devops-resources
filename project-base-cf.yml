@@ -141,6 +141,12 @@ Resources:
           ToPort: 8181
           CidrIp: 0.0.0.0/0
 
+        # this rule allows storybook port to be accessed externally
+        - IpProtocol: tcp
+          FromPort: 6006
+          ToPort: 6006
+          CidrIp: 0.0.0.0/0
+
   # We define a default target group here, as this is a mandatory Parameters
   # when creating an Application Load Balancer Listener. This is not used, instead
   # a target group is created per-service in each service template (../services/*)
