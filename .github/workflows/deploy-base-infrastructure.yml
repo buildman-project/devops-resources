@@ -2,12 +2,12 @@ name: deploy base infrastructure
 
 on:
   workflow_dispatch:
-    inputs:
-      AWS_REGION:
-        required: false
-        type: string
-        description: aws region
-        default: "us-east-1"
+    # inputs:
+    # AWS_REGION:
+    #   required: false
+    #   type: string
+    #   description: aws region
+    #   default: "us-east-1"
 
     # secrets:
     #   AWS_SECRET_ACCESS_KEY:
@@ -28,7 +28,8 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          # aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: "us-east-1"
           mask-aws-account-id: "no"
 
       - name: Login to Amazon ECR
