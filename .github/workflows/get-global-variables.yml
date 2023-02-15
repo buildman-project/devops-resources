@@ -11,7 +11,7 @@ jobs:
     outputs:
       GENERAL_ENV: ${{ steps.get-global-vars.outputs.GENERAL_ENV }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: buildman-project/base-infrastructure-deploy
           token: ${{ secrets.GH_PAT }}
