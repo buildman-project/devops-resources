@@ -54,11 +54,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: log current folder location and files
-        run: |
-          pwd
-          ls -a
-
       - name: generate docker build script
         id: generate-build-script
         uses: buildman-project/gh-action-generate-build-script@main
