@@ -2,6 +2,9 @@ name: get global variables
 
 on:
   workflow_call:
+    outputs:
+      LOAD_BALANCER_URL:
+        value: ${{ jobs.get-aws-data.outputs.LOAD_BALANCER_URL }}
 
 jobs:
   get-aws-data:
