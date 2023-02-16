@@ -19,3 +19,7 @@ jobs:
       - id: get-aws-data
         run: |
           echo LOAD_BALANCER_URL=$(aws cloudformation describe-stacks  --query "Stacks[?StackName=='${{ vars.BASE_STACK_NAME }}'][].Outputs[?OutputKey=='LoadBalancerUrl'].OutputValue" --output text) >> $GITHUB_OUTPUT
+
+      - name: echo-data
+        run: |
+          echo "load balancer url = ${{ steps.get-aws-data.outputs.LOAD_BALANCER_URL }}"
