@@ -18,7 +18,7 @@ jobs:
 
       - id: get-aws-data
         run: |
-          echo LOAD_BALANCER_URL=$(aws cloudformation describe-stacks  --query "Stacks[?StackName=='${{ vars.BASE_STACK_NAME }}'][].Outputs[?OutputKey=='LoadBalancerUrl'].OutputValue" --output text) >> $GITHUB_OUTPUT
+          echo LOAD_BALANCER_URL=$(aws cloudformation describe-stacks  --query "Stacks[?StackName=='${{ vars.AWS_BASE_STACK_NAME }}'][].Outputs[?OutputKey=='LoadBalancerUrl'].OutputValue" --output text) >> $GITHUB_OUTPUT
 
       - name: echo-data
         run: |
