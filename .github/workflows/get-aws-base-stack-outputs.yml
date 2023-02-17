@@ -20,8 +20,10 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - id: get-aws-data
-        run: |
-          echo LOAD_BALANCER_URL=$(aws cloudformation describe-stacks  --query "Stacks[?StackName=='${{ vars.AWS_BASE_STACK_NAME }}'][].Outputs[?OutputKey=='LoadBalancerUrl'].OutputValue" --output text) >> $GITHUB_OUTPUT
+        uses: buildman-project/gh-action-get-stack-output@main
+        with:
+          StackName: ${{ vars.AWS_BASE_STACK_NAME }}
+          Outputs: LoadBalancerUrl
 
       - name: echo-data
         run: |
