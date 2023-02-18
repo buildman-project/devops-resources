@@ -10,7 +10,7 @@ jobs:
   get-aws-data:
     runs-on: ubuntu-latest
     outputs:
-      LOAD_BALANCER_URL: ${{ steps.get-aws-data.outputs.LOAD_BALANCER_URL }}
+      LOAD_BALANCER_URL: http://${{ steps.get-aws-data.outputs.LOAD_BALANCER_URL }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
