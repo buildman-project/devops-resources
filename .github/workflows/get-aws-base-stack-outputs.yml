@@ -27,4 +27,4 @@ jobs:
 
       - name: echo-data
         run: |
-          echo "load balancer url = ${{ steps.get-aws-data.outputs.LOAD_BALANCER_URL }}"
+          echo "load balancer url = ${{ steps.get-aws-data.outputs.LOAD_BALANCER_URL }}/wtf"
