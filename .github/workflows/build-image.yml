@@ -24,8 +24,6 @@ on:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
-      PACKAGES_TOKEN:
-        required: true
       BUILD_ARGS:
         required: false
 
